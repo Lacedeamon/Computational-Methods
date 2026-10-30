@@ -80,16 +80,10 @@ void solve_universal(int n) {
 void solve_optimized(int n) {
     double h = 1.0 / n;
 
+  
     double A_const = 12.0 / (h * h);
     double B_const = 12.0 / (h * h);
     double C_const = 24.0 / (h * h) + 5.0;
-
-    // т.к. A = B, можно разделить уравнение A * v(i-1) - C * v(i) + B * v(i+1) = -Fi на A
-    // Получим, что коэффициент С станет 2 + 5h^2/12 а Fi(new) = Fi * h^2/12
-
-    double C_new = 2.0 + (5.0 * h * h)/ 12.0;
-    double inv_A = (h * h) / 12.0; // сразу вычисляем множитель для Fi
-    //чтобы потом не использовать на каждой итерации операцию деления
 
     vector<double> alpha(n + 1), beta(n + 1), v(n + 1);
 
@@ -102,18 +96,10 @@ void solve_optimized(int n) {
         double x_i = i * h;
         double Phi_i = 450.0 * x_i * x_i - 2110.0;
 
-        double Phi_new = Phi_i * inv_A;
-
-        //БЫЛО:
-        //double denom = C_const - alpha[i] * A_const; 
-        //alpha[i + 1] = B_const / denom;
-        //beta[i + 1] = (Phi_i + A_const * beta[i]) / denom;
-    
+        double denom = C_const - alpha[i] * A_const;
         
-        //СТАЛО:
-        double denom = C_new - alpha[i];
-        alpha[i + 1] = 1.0 / denom;
-        beta[i + 1] = (Phi_new + beta[i]) / denom;
+        alpha[i + 1] = B_const / denom;
+        beta[i + 1] = (Phi_i + A_const * beta[i]) / denom;
     }
 
     v[n] = 100.0;
@@ -168,7 +154,7 @@ void solve_optimized(int n) {
 int main() {
     setlocale(LC_ALL, "Russian");
 
-    int n = 128;
+    int n = 1048576;
 
     cout << "ЗАПУСК ЭКСПЕРИМЕНТА ДЛЯ n = " << n << "\n\n";
 
